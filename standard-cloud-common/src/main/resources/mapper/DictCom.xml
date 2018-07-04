@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gxjtkyy.standardcloud.common.dao.DictComMapper" >
+
+  <resultMap id="DictMap" type="com.gxjtkyy.standardcloud.common.domain.dto.DictDTO" >
+    <result column="id" property="id" jdbcType="INTEGER" />
+    <result column="dict_code" property="dictCode" jdbcType="VARCHAR" />
+    <result column="dict_name" property="dictName" jdbcType="VARCHAR" />
+    <result column="dict_type" property="dictType" jdbcType="VARCHAR" />
+    <result column="dict_desc" property="dictDesc" jdbcType="VARCHAR" />
+    <result column="operator_id" property="operatorId" jdbcType="VARCHAR" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  
+  <sql id="Base_Column_List" >
+      id, dict_code, dict_name, dict_type, dict_desc, create_time, update_time, operator_id
+  </sql>
+
+  <!--获取字典信息列表-->
+  <select id="getList" resultMap="DictMap" parameterType="com.gxjtkyy.standardcloud.common.domain.dto.DictDTO" >
+    select
+    <include refid="Base_Column_List" />
+    from t_dict_info
+    <where>
+      <if test="id != null ">
+        AND id = #{id}
+      </if>
+      <if test="dictCode != null and !&quot;&quot;.equals(dictCode.trim())">
+        AND dict_code = #{dictCode}
+      </if>
+      <if test="dictName != null and !&quot;&quot;.equals(dictName.trim())">
+        AND dict_name like CONCAT('%', #{dictName}, '%')
+      </if>
+      <if test="dictType != null">
+        AND dict_type = #{dictType}
+      </if>
+    </where>
+    order by id DESC
+  </select>
+
+  <!--分页获取字典信息-->
+  <select id="getListByPage" resultMap="DictMap" parameterType="com.gxjtkyy.standardcloud.common.domain.dto.CondictionDTO" >
+      select
+        <include refid="Base_Column_List" />
+      from t_dict_info
+    <where>
+      <if test="dto != null and dto.id != null">
+        AND id = #{dto.id}
+      </if>
+      <if test="dto != null and dto.dictCode != null and !&quot;&quot;.equals(dto.dictCode.trim())">
+        AND dict_code = #{dto.dictCode}
+      </if>
+      <if test="dto != null and dto.dictType != null">
+        AND dict_type = #{dto.dictType}
+      </if>
+      <if test="dto != null and dto.dictName != null and !&quot;&quot;.equals(dto.dictName.trim())">
+        AND dict_name  like CONCAT('%', #{dto.dictName}, '%')
+      </if>
+    </where>
+    order by id DESC
+    limit #{start}, #{pageSize}
+  </select>
+
+  <!--获取用户信息总数-->
+  <select id="getTotalCount"  resultType="INTEGER" parameterType="com.gxjtkyy.standardcloud.common.domain.dto.CondictionDTO" >
+    select COUNT(1)
+      from t_dict_info
+    <where>
+      <if test="dto != null and dto.id != null">
+        AND id = #{dto.id}
+      </if>
+      <if test="dto != null and dto.dictCode != null and !&quot;&quot;.equals(dto.dictCode.trim())">
+        AND dict_code = #{dto.dictCode}
+      </if>
+      <if test="dto != null and dto.dictType != null">
+        AND dict_type = #{dto.dictType}
+      </if>
+      <if test="dto != null and dto.dictName != null and !&quot;&quot;.equals(dto.dictName.trim())">
+        AND dict_name  like CONCAT('%', #{dto.dictName}, '%')
+      </if>
+    </where>
+    order by id DESC
+  </select>
+
+  <!-- 新增字典信息 -->
+  <insert id="insert" parameterType="com.gxjtkyy.standardcloud.common.domain.dto.DictDTO" >
+      insert into
+        t_dict_info(dict_code, dict_type, dict_name, dict_desc, create_time, update_time, operator_id)
+      values(
+        #{dictCode, jdbcType=VARCHAR},
+        #{dictType, jdbcType=INTEGER},
+        #{dictName, jdbcType=VARCHAR},
+        #{dictDesc, jdbcType=VARCHAR},
+        #{createTime, jdbcType=TIMESTAMP},
+        #{updateTime, jdbcType=TIMESTAMP},
+        #{operatorId, jdbcType=VARCHAR})
+  </insert>
+
+  <!-- 更新用户信息 -->
+  <update id="update" parameterType="com.gxjtkyy.standardcloud.common.domain.dto.DictDTO" >
+    update t_dict_info
+    <set >
+      <if test="dictNode != null" >
+        dict_code = #{dictCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dictName!= null" >
+        dict_name = #{dictName,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDesc != null" >
+        dict_desc = #{dictDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="dictType != null" >
+        dict_type = #{dictType,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--根据字典名称获取字典码-->
+  <select id="getByName" resultMap="DictMap" parameterType="String" >
+    select
+    <include refid="Base_Column_List" />
+    from t_dict_info where dict_name = #{dictName}
+    order by id DESC
+  </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.gxjtkyy</groupId>
+    <artifactId>standard-cloud</artifactId>
+    <version>1.0.0</version>
+
+    <packaging>pom</packaging>
+    <name>standard-cloud-project</name>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.10.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <swagger.version>2.6.1</swagger.version>
+        <poi.version>3.15</poi.version>
+        <fastjson.version>1.2.47</fastjson.version>
+        <druid.version>1.0.25</druid.version>
+        <spring.version>4.3.14.RELEASE</spring.version>
+    </properties>
+
+    <modules>
+        <module>standard-cloud-common</module>
+        <module>standard-cloud-api</module>
+        <module>standard-cloud-admin</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

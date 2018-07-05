@@ -187,35 +187,8 @@ public abstract class ExcelParser<T> {
                 }
                 docMap.put(sheetCode, sheetMap);
             } else if (direction.equals(TemplateConstant.DATA_DIRECTION_HORIZONTAL)) {
-                log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "水平遍历表格("+sheetCode+")");
-                //水平读取方向
-                List<Map<String, Object>> listMap = new ArrayList<>();
-                for (int i = startRow, size = sheet.getPhysicalNumberOfRows(); i < size; i++) {
-                    Map<String, Object> rowMap = new LinkedHashMap<>();
-                    //log.info("{} --{}",sheet.getSheetName(),i);
-                    /**
-                     * 由于getPhysicalNumberOfRows获取到的行数不一定等于有效行数，由此对行进行遍历时，遇到首列为空字符的行则跳出遍历
-                     * 故此，每张表格首列不允许跨行存在空数据
-                     */
-                    if (StringUtils.isEmpty(POIUtil.getCellValue(sheet.getRow(i).getCell(0)))) {
-                        break;
-                    }
-                    for (int j = 0, sizej = sheet.getRow(i).getPhysicalNumberOfCells(); j < sizej; j++) {
-                        String key = POIUtil.getCellValue(headRow.getCell(j));
-                        String value = POIUtil.getCellValue(sheet.getRow(i).getCell(j));
-                        //处理星号*分隔字典
-                        if (value.contains("*")) {
-                            rowMap.put(key, Arrays.asList(value.split("\\*")));
-                            continue;
-                        }
-                        rowMap.put(key, convertValue(value));
-                    }
-                    listMap.add(rowMap);
-                }
-                docMap.put(sheetCode, listMap);
-            } else if (direction.equals(TemplateConstant.DATA_DIRECTION_MIXED)) {
-                log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "遍历混合表格("+sheetCode+")");
                 if (sheet.getMergedRegions().size() > 0) {
+                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "遍历混合表格("+sheetCode+")");
                     //用map保存合并的单元对象，提高效率，仅对同列行合并有效
                     Map<Integer, CellRangeAddress> categoryMap = new HashMap<>();
                     for (CellRangeAddress rangeAddress : sheet.getMergedRegions()) {
@@ -258,9 +231,28 @@ public abstract class ExcelParser<T> {
                     }
                     pRowMap.put("children", list);
                     docMap.put(sheetCode, pRowMap);
-                } else {
-                    log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "遍历混合表格("+sheetCode+")", "模板配置读取方向错误，表格中不存在合并单元格");
-                    throw new TemplateException(RESULT_CODE_1006, String.format(RESULT_DESC_1006, sheetCode));
+                }else{
+                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "水平遍历表格("+sheetCode+")");
+                    //水平读取方向
+                    List<Map<String, Object>> listMap = new ArrayList<>();
+                    for (int i = startRow, size = sheet.getPhysicalNumberOfRows(); i < size; i++) {
+                        Map<String, Object> rowMap = new LinkedHashMap<>();
+                        if (StringUtils.isEmpty(POIUtil.getCellValue(sheet.getRow(i).getCell(0)))) {
+                            break;
+                        }
+                        for (int j = 0, sizej = sheet.getRow(i).getPhysicalNumberOfCells(); j < sizej; j++) {
+                            String key = POIUtil.getCellValue(headRow.getCell(j));
+                            String value = POIUtil.getCellValue(sheet.getRow(i).getCell(j));
+                            //处理星号*分隔字典
+                            if (value.contains("*")) {
+                                rowMap.put(key, Arrays.asList(value.split("\\*")));
+                                continue;
+                            }
+                            rowMap.put(key, convertValue(value));
+                        }
+                        listMap.add(rowMap);
+                    }
+                    docMap.put(sheetCode, listMap);
                 }
             } else {
                 log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "模板未定义数据读取方向("+sheetCode+")");

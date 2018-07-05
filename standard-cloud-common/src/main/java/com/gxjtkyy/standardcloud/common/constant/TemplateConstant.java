@@ -14,9 +14,6 @@ public class TemplateConstant {
     /**垂直方向数据*/
     public static final String DATA_DIRECTION_VERTICAL = "V";
 
-    /**混合方向，即存在合并单元格*/
-    public static final String DATA_DIRECTION_MIXED = "M";
-
     /**数据模型  文本格式*/
     public static final String DATA_MODEL_TEXT = "TEXT";
 

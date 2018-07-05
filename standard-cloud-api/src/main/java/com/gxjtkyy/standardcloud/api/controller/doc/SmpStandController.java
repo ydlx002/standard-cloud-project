@@ -31,7 +31,7 @@ public class SmpStandController {
     private SmpStandService smpStandService;
 
     @ApiOperation(value="获取抽样细则详情", notes="获取抽样细则详情")
-    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "RequestVO", paramType = "body")
+    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "DocRequestVO", paramType = "body")
     @ApiAction("获取抽样细则详情")
     @PostMapping("/getDetailDoc")
     public ResponseVO getDetailDoc(@RequestBody DocRequestVO request) throws BaseException {

@@ -59,7 +59,7 @@ public class DocController {
 
 
     @ApiOperation(value = "获取导航栏", notes = "获取导航栏")
-    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "RequestVO", paramType = "body")
+    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "DocRequestVO", paramType = "body")
     @PostMapping("/getNavigation")
     @ApiAction("获取导航栏")
     public ResponseVO getNavigation(@RequestBody DocRequestVO request) throws BaseException {

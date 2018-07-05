@@ -62,7 +62,7 @@ public class DocController {
     @PostMapping(value = "/add")
     @ResponseBody
     public ResponseVO add(@RequestParam("file") MultipartFile file, @RequestParam("templateId") String templateId) throws BaseException {
-        BusiUtil.setBusiDesc(UUID.randomUUID().toString().replace("-",""));
+        BusiUtil.setLogIndex(UUID.randomUUID().toString().replace("-",""));
         ResponseVO response = new ResponseVO();
         String fileName = file.getOriginalFilename();
         String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);

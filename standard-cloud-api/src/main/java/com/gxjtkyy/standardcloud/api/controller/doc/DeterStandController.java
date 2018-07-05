@@ -33,7 +33,7 @@ public class DeterStandController {
     private DeterStandService deterStandService;
 
     @ApiOperation(value="查询判定标准详情", notes="查询判定标准详情")
-    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "RequestVO", paramType = "body")
+    @ApiImplicitParam(name = "request", value = "请求体", required = true, dataType = "DocRequestVO", paramType = "body")
     @PostMapping("/getDetailDoc")
     @ApiAction("查询判定标准详情")
     public ResponseVO getDetailDoc(@RequestBody DocRequestVO request) throws BaseException {

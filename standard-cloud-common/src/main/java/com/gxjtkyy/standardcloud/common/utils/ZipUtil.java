@@ -1,6 +1,7 @@
 package com.gxjtkyy.standardcloud.common.utils;
 
-import org.apache.log4j.Logger;
+import com.gxjtkyy.standardcloud.common.constant.DocConstant;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.List;
@@ -9,9 +10,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
+@Slf4j
 public class ZipUtil {
-
-	private static Logger logger = Logger.getLogger(ZipUtil.class);
 
 	public static void zip(String zipFileName, String inputFile) throws Exception {
 		zip(zipFileName, new File(inputFile));
@@ -24,7 +24,7 @@ public class ZipUtil {
 	}
 
 	public static void zip(ZipOutputStream out, File file, String base) throws Exception {
-		logger.debug("Zipping " + file.getName());
+		log.info("Zipping " + file.getName());
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
 			out.putNextEntry(new ZipEntry(base + "/"));
@@ -57,14 +57,15 @@ public class ZipUtil {
 		File file1=new File(outputDirectory);
 		if(!file1.exists()) file1.mkdirs();
 		while ((zipEntry = zis.getNextEntry()) != null) {
-			logger.debug("unziping " + zipEntry.getName());
+			log.info("unziping " + zipEntry.getName());
 			if (zipEntry.isDirectory()) {
 				String name = zipEntry.getName();
 				name = name.substring(0, name.length() - 1);
 				File file = new File(outputDirectory + File.separator + name);
 				file.mkdirs();
-				logger.debug("mkdir " + outputDirectory + File.separator + name);
+				log.info("mkdir " + outputDirectory + File.separator + name);
 			} else {
+				log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "正在解压...", zipEntry.getName());
 				File file = new File(outputDirectory + File.separator + zipEntry.getName());
 				file.createNewFile();
 				FileOutputStream fos = new FileOutputStream(file);

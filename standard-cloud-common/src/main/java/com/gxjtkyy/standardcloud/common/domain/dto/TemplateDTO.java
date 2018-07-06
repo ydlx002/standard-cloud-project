@@ -26,9 +26,15 @@ public class TemplateDTO extends BaseDTO{
 
     /**模板名称*/
     private String templateName;
+    
+    /**模板描述*/
+    private String templateDesc;
 
     /**文档类型*/
     private int docType;
+    
+    /**0 无效  1有效*/
+    private Integer status;
 
     /**模板目录*/
     private List<SheetInfo> catalog;

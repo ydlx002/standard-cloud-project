@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50635
 File Encoding         : 65001
 
-Date: 2018-07-04 19:40:18
+Date: 2018-07-06 16:19:28
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -31,7 +31,7 @@ CREATE TABLE `t_dict_info` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `dict_code` (`dict_code`) USING BTREE,
   UNIQUE KEY `dict_name` (`dict_name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_dict_info
@@ -126,3 +126,5 @@ INSERT INTO `t_dict_info` VALUES ('87', 'ADI', '0', 'ADI值', null, '2018-07-04 
 INSERT INTO `t_dict_info` VALUES ('88', 'maxResidueLimit', '0', '最大残留限量', null, '2018-07-04 16:31:31', '2018-07-04 16:31:31', null);
 INSERT INTO `t_dict_info` VALUES ('89', 'topFoodName', '0', '食品名称一级', null, '2018-07-04 16:33:52', '2018-07-04 16:33:52', null);
 INSERT INTO `t_dict_info` VALUES ('90', 'secondFoodName', '0', '食品名称二级', null, '2018-07-04 16:34:24', '2018-07-04 16:34:24', null);
+INSERT INTO `t_dict_info` VALUES ('91', 'smp', '0', '抽样样品', '', '2018-07-05 10:58:29', '2018-07-05 10:58:29', null);
+INSERT INTO `t_dict_info` VALUES ('92', 'netQuantity', '0', '净含量', '净含量', '2018-07-06 15:52:04', '2018-07-06 15:52:04', null);

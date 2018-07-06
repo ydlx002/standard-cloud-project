@@ -22,6 +22,8 @@ public class BriefDocDTO extends BaseDocDTO {
         this.setDocType(dto.getDocType());
         this.setTemplateId(dto.getTemplateId());
         this.setViewCount(new Integer(0));
+        this.setUpdateTime(dto.getUpdateTime());
+        this.setCreateTime(dto.getCreateTime());
     }
 
     /**阅读量*/

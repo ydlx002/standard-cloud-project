@@ -29,9 +29,8 @@ public class RequestVO implements Serializable{
 
     /**平台*/
     @NotEmpty
-    @EnumType(enums = {"web","app"})
+    @EnumType(enums = {"web","ios","android"})
     private String platForm;
-
 
 
 }

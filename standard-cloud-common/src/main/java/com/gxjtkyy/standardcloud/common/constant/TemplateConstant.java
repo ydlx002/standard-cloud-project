@@ -26,4 +26,10 @@ public class TemplateConstant {
     /**单元格附录前缀*/
     public static final String CELL_ATTACH_PREFIX = "at:";
 
+    /**模板状态  1 正常*/
+    public static final Integer TEMPLATE_STATUS_NORMAL = 1;
+
+    /**模板状态  0 无效*/
+    public static final Integer TEMPLATE_STATUS_INVALID = 0;
+
 }

@@ -134,4 +134,12 @@
     order by id DESC
   </select>
 
+  <!--根据字典编码获取字典名称-->
+  <select id="getByCode" resultMap="DictMap" parameterType="String" >
+    select
+    <include refid="Base_Column_List" />
+    from t_dict_info where dict_code = #{dictCode}
+    order by id DESC
+  </select>
+
 </mapper>

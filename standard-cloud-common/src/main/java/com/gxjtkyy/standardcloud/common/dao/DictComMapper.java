@@ -33,6 +33,13 @@ public interface DictComMapper {
     List<DictDTO> getByName(@Param("dictName") String dictName);
 
     /**
+     * 根据字典编码查询字典名称
+     * @param dictCode
+     * @return
+     */
+    List<DictDTO> getByCode(@Param("dictCode") String dictCode);
+
+    /**
      * 根据code查询字典描述
      * @param dto 字典码
      * @return

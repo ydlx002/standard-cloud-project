@@ -114,6 +114,9 @@ public class ResultCode {
     public static final String RESULT_CODE_1024 = "1024";
     public static final String RESULT_DESC_1024 = "字典名称已存在";
 
+    public static final String RESULT_CODE_1025 = "1025";
+    public static final String RESULT_DESC_1025 = "导入文档与对应模板表格名不一致[%s]";
+
 
     /**
      * 2000 ~ 2999 文档类错误

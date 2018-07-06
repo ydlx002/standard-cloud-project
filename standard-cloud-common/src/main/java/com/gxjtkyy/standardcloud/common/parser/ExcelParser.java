@@ -83,21 +83,18 @@ public abstract class ExcelParser<T> {
             List<SheetInfo> sheetInfos = template.getCatalog();
 
             if (sheetInfos.size() != wb.getNumberOfSheets()) {
-                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel Sheet数目不匹配", wb.getNumberOfSheets() + " ≠ " + sheetInfos.size());
+                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel表头预解析", "Excel Sheet数目不匹配("+ wb.getNumberOfSheets() + " ≠ " + sheetInfos.size()+")");
                 throw new TemplateException(RESULT_CODE_1002, String.format(RESULT_DESC_1002, "表格数不一致"));
             }
 
             for (int i = 0, size = sheetInfos.size(); i < size; i++) {
                 SheetInfo sheetInfo = sheetInfos.get(i);
                 Sheet sheet = wb.getSheetAt(i);
-//                if (sheetInfo.getDataModel().equals(TemplateConstant.DATA_MODEL_ATTACH)) {
-//                    continue;
-//                }
                 //sheet name 不匹配
-                String sheetCode = dictCache.getDictCode(sheet.getSheetName(), i, -1);
-                if (!sheetInfo.getSheetCode().equals(sheetCode)) {
-                    log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "SheetCode 不匹配", sheetCode + " ≠ " + sheetInfo.getSheetCode());
-                    throw new TemplateException(RESULT_CODE_1002, String.format(RESULT_DESC_1002, sheet.getSheetName()+"("+sheetCode + " ≠ " + sheetInfo.getSheetCode()+")"));
+                String infoSheetName = dictCache.getDictName(sheetInfo.getSheetCode(), i, -1);
+                if (!infoSheetName.equals(sheet.getSheetName())) {
+                    log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel表头预解析","Sheet 不匹配("+ sheet.getSheetName() + " ≠ " + infoSheetName+")");
+                    throw new TemplateException(RESULT_CODE_1025, String.format(RESULT_DESC_1025, sheet.getSheetName() + " ≠ " + infoSheetName));
                 }
 
 
@@ -109,28 +106,13 @@ public abstract class ExcelParser<T> {
                         log.warn(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel表头预解析", "表头: " + colInfos.get(j) + "不存在");
                         break;
                     }
-                    String colCode = dictCache.getDictCode(cellValue, i, j);
-                    if (!colInfos.get(j).equals(colCode)) {
-                        log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel表头预解析", sheet.getSheetName()+": 表头不匹配 --> "+colCode + " ≠ " + colInfos.get(j));
-                        throw new TemplateException(RESULT_CODE_1002, String.format(RESULT_DESC_1002, sheet.getSheetName()+"("+colCode + " ≠ " + colInfos.get(j))+")");
+                    String infoColName = dictCache.getDictName(colInfos.get(j), i,j);
+                    if (!cellValue.equals(infoColName)) {
+                        log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "Excel表头预解析", sheet.getSheetName() + "--> 表头不匹配(" + cellValue + " ≠ " + infoColName+")");
+                        throw new TemplateException(RESULT_CODE_1002, String.format(RESULT_DESC_1002, sheet.getSheetName() + "(" + cellValue + " ≠ " + infoColName + ")"));
                     }
                     cell.setCellValue(colInfos.get(j));
                 }
-
-//                //匹配列
-//                if (!sheetInfo.isSingleColumn()) {
-//
-//                } else {
-//                    //单列表格属性匹配
-//                    Cell cell = sheet.getRow(0).getCell(0);
-//                    String colName = POIUtil.getCellValue(cell);
-//                    if (!sheetInfo.getSheetCode().equals(dictCache.getDictCode(colName, i, 0))) {
-//                        //log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), sheet.getSheetName()+": SheetColumn 不匹配", colCode + " ≠ " + colInfos.get(j));
-//                        log.error("导入文档与对应模板column不匹配(单列),sheet-->{},current col-->{}, template col-->{}", sheet.getSheetName(), colName, sheetInfo.getSheetCode());
-//                        throw new TemplateException(RESULT_CODE_1002, String.format(RESULT_DESC_1002, sheet.getSheetName()));
-//                    }
-//                    cell.setCellValue(sheetInfo.getSheetCode());
-//                }
                 //更改表名,注意，表名不能超过32个字符
                 wb.setSheetName(i, sheetInfo.getSheetCode() + "$" + sheetInfo.getDataDirection() + "$" + sheetInfo.getStartRow());
             }
@@ -152,6 +134,7 @@ public abstract class ExcelParser<T> {
         }
         Iterator<Sheet> sheets = wb.iterator();
         Map<String, Object> docMap = new LinkedHashMap<>();
+        int sheetNum = 0;
         while (sheets.hasNext()) {
             Sheet sheet = sheets.next();
             Row headRow = sheet.getRow(0);
@@ -161,10 +144,12 @@ public abstract class ExcelParser<T> {
             String sheetCode = args[0];
             String direction = args[1];
             int startRow = Integer.valueOf(args[2]);
+            DictCacheUtil dictCache = DictCacheUtil.getInstance();
+            String sheetDictName = dictCache.getDictName(sheetCode, sheetNum, -1);
 
             //垂直读取方向
             if (direction.equals(TemplateConstant.DATA_DIRECTION_VERTICAL)) {
-                log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "垂直遍历表格("+sheetCode+")");
+                log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "垂直遍历表格(" + sheetDictName + ")");
                 int totalColNum = sheet.getRow(0).getPhysicalNumberOfCells();
                 int totalRowNum = sheet.getPhysicalNumberOfRows();
                 Map<String, Object> sheetMap = new LinkedHashMap<>();
@@ -177,7 +162,7 @@ public abstract class ExcelParser<T> {
                     List<Object> rowList = new ArrayList<>();
                     for (int j = startRow; j < totalRowNum; j++) {
                         if (sheet.getRow(j) == null || sheet.getRow(j).getCell(i) == null || StringUtils.isEmpty(POIUtil.getCellValue(sheet.getRow(j).getCell(i)))) {
-                            log.debug(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "垂直遍历表格("+sheetCode+")", "row: "+j +",col: "+j +" 空白单元格，终止行读取");
+                            log.debug(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "垂直遍历表格(" + sheetDictName + ")", "row: " + j + ",col: " + j + " 空白单元格，终止行读取");
                             break;
                         }
                         String value = POIUtil.getCellValue(sheet.getRow(j).getCell(i));
@@ -188,13 +173,13 @@ public abstract class ExcelParser<T> {
                 docMap.put(sheetCode, sheetMap);
             } else if (direction.equals(TemplateConstant.DATA_DIRECTION_HORIZONTAL)) {
                 if (sheet.getMergedRegions().size() > 0) {
-                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "遍历混合表格("+sheetCode+")");
+                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "遍历混合表格(" + sheetDictName + ")");
                     //用map保存合并的单元对象，提高效率，仅对同列行合并有效
                     Map<Integer, CellRangeAddress> categoryMap = new HashMap<>();
                     for (CellRangeAddress rangeAddress : sheet.getMergedRegions()) {
                         if (categoryMap.get(rangeAddress.getFirstColumn()) != null) {
-                            log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "遍历混合表格("+sheetCode+")", "不支持同列多合并单元格读取");
-                            throw new TemplateException(RESULT_CODE_1005, String.format(RESULT_DESC_1005, sheetCode));
+                            log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "遍历混合表格(" + sheetDictName + ")", "不支持同列多合并单元格读取");
+                            throw new TemplateException(RESULT_CODE_1005, String.format(RESULT_DESC_1005, sheetDictName));
                         }
                         categoryMap.put(rangeAddress.getFirstColumn(), rangeAddress);
                     }
@@ -231,8 +216,8 @@ public abstract class ExcelParser<T> {
                     }
                     pRowMap.put("children", list);
                     docMap.put(sheetCode, pRowMap);
-                }else{
-                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"解析Excel文档...", "水平遍历表格("+sheetCode+")");
+                } else {
+                    log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "水平遍历表格(" + sheetDictName + ")");
                     //水平读取方向
                     List<Map<String, Object>> listMap = new ArrayList<>();
                     for (int i = startRow, size = sheet.getPhysicalNumberOfRows(); i < size; i++) {
@@ -256,9 +241,10 @@ public abstract class ExcelParser<T> {
                     docMap.put(sheetCode, listMap);
                 }
             } else {
-                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "模板未定义数据读取方向("+sheetCode+")");
+                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档...", "模板未定义数据读取方向(" + sheetDictName + ")");
                 throw new TemplateException(RESULT_CODE_1004, String.format(RESULT_DESC_1004, sheetCode));
             }
+            sheetNum++;
         }
         return docMap;
     }
@@ -278,7 +264,7 @@ public abstract class ExcelParser<T> {
             String basePath = new File(excelPath).getParent();
             File atFile = new File(basePath + File.separator + atFileStr);
             if (!atFile.exists() || !atFile.isFile()) {
-                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档中附录...", "文件("+value+")不存在");
+                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "解析Excel文档中附录...", "文件(" + value + ")不存在");
                 throw new TemplateException(RESULT_CODE_1016, String.format(RESULT_DESC_1016, value));
             }
             String fileId = UUID.randomUUID().toString().replace("-", "");
@@ -297,10 +283,10 @@ public abstract class ExcelParser<T> {
             ThreadPoolManager.getsInstance().execute(() -> {
                 try {
                     String newFilePath = upload + File.separator + "attach" + File.separator + dateStrPath + File.separator + fileId + suffix;
-                    log.info("{}@正在拷贝附录...  {}--> {}",logIndex, atFileStr, newFilePath);
+                    log.info("{}@正在拷贝附录...  {}--> {}", logIndex, atFileStr, newFilePath);
                     FileUtils.copyFile(atFile, new File(newFilePath));
                 } catch (IOException e) {
-                    log.error("{}@拷贝文件失败 --> {}",logIndex, originName, e);
+                    log.error("{}@拷贝文件失败 --> {}", logIndex, originName, e);
                 }
             });
             return info;

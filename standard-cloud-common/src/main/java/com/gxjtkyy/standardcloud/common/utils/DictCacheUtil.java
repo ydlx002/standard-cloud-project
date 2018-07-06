@@ -33,7 +33,9 @@ public class DictCacheUtil {
 
     private volatile static DictCacheUtil cacheObject;
 
-    private static Map<String, String> cacheMap = new ConcurrentHashMap<>();
+    private static Map<String, String> nameCache = new ConcurrentHashMap<>();
+
+    private static Map<String, String> codeCache = new ConcurrentHashMap<>();
 
     private DictCacheUtil(){
         this.loadCache();
@@ -63,7 +65,8 @@ public class DictCacheUtil {
         DictComMapper dictMapper = ApplicationContextUtil.getBean("dictComMapper");
         List<DictDTO> list =  dictMapper.getList(null);
         for(DictDTO dto: list){
-            cacheMap.put(dto.getDictName(), dto.getDictCode());
+            nameCache.put(dto.getDictName(), dto.getDictCode());
+            codeCache.put(dto.getDictCode(), dto.getDictName());
         }
         this.updateFlag = false;
     }
@@ -73,7 +76,7 @@ public class DictCacheUtil {
      *
      * @return
      */
-    public Map<String, String> getMapCache() {
+    public Map<String, String> getNameCache() {
         long currentTime = System.currentTimeMillis();
         if (this.updateFlag) {// 前缓存正在更新
             log.info("cache is Instance .....");
@@ -86,7 +89,28 @@ public class DictCacheUtil {
                 this.updateTime = currentTime;
             }
         }
-        return this.cacheMap;
+        return this.nameCache;
+    }
+
+    /**
+     * 返回缓存对象
+     *
+     * @return
+     */
+    public Map<String, String> getCodeCache() {
+        long currentTime = System.currentTimeMillis();
+        if (this.updateFlag) {// 前缓存正在更新
+            log.info("cache is Instance .....");
+            return null;
+        }
+
+        if (this.IsTimeOut(currentTime)) {// 如果当前缓存正在更新或者缓存超出时限，需重新加载
+            synchronized (this) {
+                this.reLoadCache();
+                this.updateTime = currentTime;
+            }
+        }
+        return this.codeCache;
     }
 
     private boolean IsTimeOut(long currentTime) {
@@ -97,8 +121,16 @@ public class DictCacheUtil {
      * 获取缓存项大小
      * @return
      */
-    private int getCacheSize() {
-        return cacheMap.size();
+    private int getNameCacheSize() {
+        return nameCache.size();
+    }
+
+    /**
+     * 获取缓存项大小
+     * @return
+     */
+    private int getCodeCacheSize() {
+        return codeCache.size();
     }
 
     /**
@@ -121,12 +153,21 @@ public class DictCacheUtil {
      * 重新装载
      */
     private void reLoadCache() {
-        this.cacheMap.clear();
+        this.nameCache.clear();
+        this.codeCache.clear();
         this.loadCache();
     }
 
-    public String getDictCode(String dictName, int sheetNum, int coNum) throws TemplateException {
-        String dictCode = cacheMap.get(dictName);
+    /**
+     * 获取字典编码
+     * @param dictName 字典名称
+     * @param sheetNum 表格序列
+     * @param colNum 列序列
+     * @return
+     * @throws TemplateException
+     */
+    public String getDictCode(String dictName, int sheetNum, int colNum) throws TemplateException {
+        String dictCode = nameCache.get(dictName);
         //查询不到字典码，则刷新缓存
         if(StringUtils.isEmpty(dictCode)){
             DictComMapper dictMapper = ApplicationContextUtil.getBean("dictComMapper");
@@ -137,11 +178,38 @@ public class DictCacheUtil {
                 this.reLoadCache();
                 return dtos.get(0).getDictCode();
             }else{
-                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"获取字典编码...","字典{"+dictName+"}不存在, at sheet num-->" + sheetNum +" , cols num-->"+coNum);
+                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"获取字典编码...","字典{"+dictName+"}不存在, at sheet -->" + sheetNum +" , cols -->"+colNum);
                 throw new TemplateException(RESULT_CODE_1000, String.format(RESULT_DESC_1000, dictName));
             }
         }
         return dictCode;
+    }
+
+    /**
+     * 获取字典名称
+     * @param dictCode 字典编码
+     * @param sheetNum 表格序列
+     * @param coNum 列序列
+     * @return
+     * @throws TemplateException
+     */
+    public String getDictName(String dictCode, int sheetNum, int coNum) throws TemplateException {
+        String dictName = codeCache.get(dictCode);
+        //查询不到字典名称，则刷新缓存
+        if(StringUtils.isEmpty(dictName)){
+            DictComMapper dictMapper = ApplicationContextUtil.getBean("dictComMapper");
+            List<DictDTO> dtos = dictMapper.getByCode(dictCode);
+            if(null != dtos && dtos.size() > 0){
+                //重新加载缓存
+                log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"获取字典名称...","字典{"+dictCode+"}存在, 重新加载缓存...");
+                this.reLoadCache();
+                return dtos.get(0).getDictName();
+            }else{
+                log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(),"获取字典名称...","字典{"+dictCode+"}不存在, at sheet -->" + sheetNum +" , cols -->"+coNum);
+                throw new TemplateException(RESULT_CODE_1000, String.format(RESULT_DESC_1000, dictName));
+            }
+        }
+        return dictName;
     }
 
 }

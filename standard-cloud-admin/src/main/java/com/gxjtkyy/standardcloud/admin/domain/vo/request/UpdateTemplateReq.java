@@ -33,5 +33,9 @@ public class UpdateTemplateReq extends RequestVO{
     /**dataDirection*/
     @EnumType(enums = {"H","V","M"})
     private String dataDirection;
+    
+    /**模板描述*/
+    private String templateDesc;
+
 
 }

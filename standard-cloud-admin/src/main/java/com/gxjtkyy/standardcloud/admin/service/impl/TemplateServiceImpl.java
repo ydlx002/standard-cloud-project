@@ -3,6 +3,7 @@ package com.gxjtkyy.standardcloud.admin.service.impl;
 import com.gxjtkyy.standardcloud.admin.domain.vo.TemplateVO;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplatePageReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplateReq;
+import com.gxjtkyy.standardcloud.admin.domain.vo.request.RemoveTemplateReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.UpdateTemplateReq;
 import com.gxjtkyy.standardcloud.admin.service.TemplateService;
 import com.gxjtkyy.standardcloud.common.constant.DocConstant;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -49,7 +51,7 @@ public class TemplateServiceImpl implements TemplateService {
 
 
     @Override
-    public void add(String templateName, int docType, String path) throws TemplateException {
+    public void add(String templateName, int docType, String templateDesc, String path) throws TemplateException {
         File file = new File(path);
         Workbook wb = POIUtil.getWBFormExcel(file);
         if (null != wb) {
@@ -58,6 +60,8 @@ public class TemplateServiceImpl implements TemplateService {
             template.setTemplateName(templateName);
             template.setCreateTime(new Date());
             template.setUpdateTime(new Date());
+            template.setTemplateDesc(templateDesc);
+            template.setStatus(1);
             Iterator<Sheet> sheets = wb.sheetIterator();
             DictCacheUtil dictCacheUtil = DictCacheUtil.getInstance();
             List<SheetInfo> catalog = new ArrayList<>();
@@ -105,7 +109,7 @@ public class TemplateServiceImpl implements TemplateService {
     public ResponseVO getListByPage(QueryTemplatePageReq request) throws TemplateException {
         ResponseVO response = new ResponseVO();
         Page<TemplateVO> page = new Page<>();
-        Criteria criteria = new Criteria();
+        Criteria criteria = new Criteria().and("status").is(TemplateConstant.TEMPLATE_STATUS_NORMAL);
         if (!StringUtils.isEmpty(request.getTemplateName())) {
             criteria.and("templateName").regex(request.getTemplateName());
         }
@@ -123,13 +127,9 @@ public class TemplateServiceImpl implements TemplateService {
         //skip方法是跳过条数，而且是一条一条的跳过，如果集合比较大时（如书页数很多）skip会越来越慢, 需要更多的处理器(CPU)，这会影响性能。后续升级改用Morphia框架
         List<TemplateDTO> list = mongoTemplate.find(query, TemplateDTO.class, DocConstant.COLLECTION_DOC_TEMPLATE_CATALOG);
         List<TemplateVO> vos = new ArrayList<>();
-        for (TemplateDTO info : list) {
+        for (TemplateDTO dto : list) {
             TemplateVO vo = new TemplateVO();
-            vo.setId(info.getId());
-            vo.setTemplateName(info.getTemplateName());
-            vo.setDocType(info.getDocType());
-            vo.setCreateTime(info.getCreateTime());
-            vo.setUpdateTime(info.getUpdateTime());
+            BeanUtils.copyProperties(dto, vo);
             vos.add(vo);
         }
         page.setDataList(vos);
@@ -140,15 +140,12 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public ResponseVO getAllTemplate() throws TemplateException {
         ResponseVO response = new ResponseVO();
-        List<TemplateDTO> list = mongoTemplate.find(null, TemplateDTO.class, DocConstant.COLLECTION_DOC_TEMPLATE_CATALOG);
+        Criteria criteria = new Criteria().and("status").is(TemplateConstant.TEMPLATE_STATUS_NORMAL);
+        List<TemplateDTO> list = mongoTemplate.find(new Query(criteria), TemplateDTO.class, DocConstant.COLLECTION_DOC_TEMPLATE_CATALOG);
         List<TemplateVO> vos = new ArrayList<>();
-        for (TemplateDTO info : list) {
+        for (TemplateDTO dto : list) {
             TemplateVO vo = new TemplateVO();
-            vo.setId(info.getId());
-            vo.setTemplateName(info.getTemplateName());
-            vo.setDocType(info.getDocType());
-            vo.setCreateTime(info.getCreateTime());
-            vo.setUpdateTime(info.getUpdateTime());
+            BeanUtils.copyProperties(dto, vo);
             vos.add(vo);
         }
         response.setData(vos);
@@ -177,6 +174,11 @@ public class TemplateServiceImpl implements TemplateService {
             update.set("catalog.$.dataModel", request.getDataModel());
             log.debug(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "更新模板: " + request.getNode(), "dataModel ->" + request.getDataDirection());
         }
+        if (!StringUtils.isEmpty(request.getTemplateDesc())) {
+            update.set("templateDesc", request.getTemplateDesc());
+            log.debug(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "更新模板: " + request.getNode(), "templateDesc ->" + request.getTemplateDesc());
+        }
+        update.set("updateTime", new Date());
         ResponseVO response = new ResponseVO();
         try {
             mongoTemplate.updateFirst(new Query(criteria), update, DocConstant.COLLECTION_DOC_TEMPLATE_CATALOG);
@@ -211,5 +213,22 @@ public class TemplateServiceImpl implements TemplateService {
             throw new TemplateException(RESULT_CODE_1001, String.format(RESULT_DESC_1001, templateId));
         }
         return template;
+    }
+
+    @Override
+    public ResponseVO remove(RemoveTemplateReq request) throws TemplateException {
+        Criteria criteria = new Criteria("_id").is(request.getTemplateId());
+        Update update = new Update();
+        update.set("updateTime", new Date());
+        update.set("status", TemplateConstant.TEMPLATE_STATUS_INVALID);
+        ResponseVO response = new ResponseVO();
+        try {
+            mongoTemplate.updateFirst(new Query(criteria), update, DocConstant.COLLECTION_DOC_TEMPLATE_CATALOG);
+        } catch (Exception e) {
+            log.error(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "移除模板", "异常", e);
+            response.setCode(RESULT_CODE_9999);
+            response.setMsg(RESULT_DESC_9999);
+        }
+        return response;
     }
 }

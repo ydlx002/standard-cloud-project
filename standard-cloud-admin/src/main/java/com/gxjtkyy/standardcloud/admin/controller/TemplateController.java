@@ -3,6 +3,7 @@ package com.gxjtkyy.standardcloud.admin.controller;
 
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplatePageReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplateReq;
+import com.gxjtkyy.standardcloud.admin.domain.vo.request.RemoveTemplateReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.UpdateTemplateReq;
 import com.gxjtkyy.standardcloud.admin.service.TemplateService;
 import com.gxjtkyy.standardcloud.common.annotation.ApiAction;
@@ -55,10 +56,11 @@ public class TemplateController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "authorization", value = "登录凭证", required = false, dataType = "String", paramType = "header"),
             @ApiImplicitParam(name = "file", value = "excel数据流", required = true, dataType = "MultipartFile", paramType = "form"),
-            @ApiImplicitParam(name = "docType", value = "文档类型", required = true, dataType = "Integer", paramType = "form")
+            @ApiImplicitParam(name = "docType", value = "文档类型", required = true, dataType = "Integer", paramType = "form"),
+            @ApiImplicitParam(name = "templateDesc", value = "模板描述", dataType = "String", paramType = "form")
     })
     @PostMapping(value="/add")
-    public ResponseVO upload(@RequestParam("file") MultipartFile file, @RequestParam("docType") Integer docType)  throws TemplateException{
+    public ResponseVO upload(@RequestParam("file") MultipartFile file, @RequestParam("docType") Integer docType, String templateDesc)  throws TemplateException{
         BusiUtil.setLogIndex(UUID.randomUUID().toString().replace("-",""));
         ResponseVO response = new ResponseVO();
         String fileName = file.getOriginalFilename();
@@ -78,7 +80,7 @@ public class TemplateController {
             }
             String newName = tempName+"_"+System.currentTimeMillis()+"."+suffix;
             Files.copy(file.getInputStream(), Paths.get(savePath, newName));
-            templateService.add(tempName, docType, savePath + File.separator + newName);
+            templateService.add(tempName, docType, templateDesc, savePath + File.separator + newName);
         } catch (IOException e) {
             log.error("上传异常", e);
             response.setCode(ResultCode.RESULT_CODE_9999);
@@ -119,6 +121,13 @@ public class TemplateController {
     @PostMapping("/update")
     public ResponseVO update(@RequestBody UpdateTemplateReq request) throws TemplateException{
         return templateService.updateTemplate(request);
+    }
+
+    @ApiOperation(value="移除模板", notes="移除模板")
+    @ApiAction("移除模板")
+    @PostMapping("/remove")
+    public ResponseVO remove(@RequestBody RemoveTemplateReq request) throws TemplateException{
+        return templateService.remove(request);
     }
 
 }

@@ -3,6 +3,7 @@ package com.gxjtkyy.standardcloud.admin.controller;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryDocPageReq;
 import com.gxjtkyy.standardcloud.admin.service.DocService;
 import com.gxjtkyy.standardcloud.common.annotation.ApiAction;
+import com.gxjtkyy.standardcloud.common.constant.DocConstant;
 import com.gxjtkyy.standardcloud.common.constant.ResultCode;
 import com.gxjtkyy.standardcloud.common.domain.vo.DocRequestVO;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
@@ -88,6 +89,7 @@ public class DocController {
                 ZipUtil.unzip(basePath + File.separator + newName, basePath + File.separator + prefixName);
                 for (String fileItem : new File(basePath + File.separator + prefixName).list()) {
                     if (fileItem.endsWith(".xls") || fileItem.endsWith(".xlsx")) {
+                        log.info(DocConstant.LOG_PRINT_FORMAT, BusiUtil.getLogIndex(), "正在添加文档...", fileName);
                         docService.addDoc("",templateId, basePath + File.separator +prefixName+ File.separator + fileItem);
                     }
                 }

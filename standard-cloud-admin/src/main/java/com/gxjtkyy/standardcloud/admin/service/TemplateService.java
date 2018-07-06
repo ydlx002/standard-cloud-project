@@ -2,6 +2,7 @@ package com.gxjtkyy.standardcloud.admin.service;
 
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplatePageReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.QueryTemplateReq;
+import com.gxjtkyy.standardcloud.admin.domain.vo.request.RemoveTemplateReq;
 import com.gxjtkyy.standardcloud.admin.domain.vo.request.UpdateTemplateReq;
 import com.gxjtkyy.standardcloud.common.domain.dto.TemplateDTO;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
@@ -19,9 +20,10 @@ public interface TemplateService {
      * 新增模板
      * @param templateName 模板名称
      * @param path 文档类型
+     * @param templateDesc 模板描述
      * @param path 模板路径
      */
-    void add(String templateName, int docType, String path) throws TemplateException;
+    void add(String templateName, int docType, String templateDesc, String path) throws TemplateException;
 
 
     /**
@@ -66,5 +68,14 @@ public interface TemplateService {
      * @throws TemplateException
      */
     TemplateDTO getTemplateById(String templateId) throws TemplateException;
+
+
+    /**
+     * 移除模板
+     * @param request
+     * @return
+     * @throws TemplateException
+     */
+    ResponseVO remove(RemoveTemplateReq request) throws TemplateException;
 
 }

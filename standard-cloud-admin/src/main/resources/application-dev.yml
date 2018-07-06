@@ -18,3 +18,11 @@ upload.path: upload
 server:
   context-path: /
   port: 8082
+  tomcat:
+    basedir: tomcat
+    accesslog:
+      enabled: true
+      directory: ${log.path}/tomcat
+      request-attributes-enabled: true
+      pattern: '%t [%I] %{X-Forwarded-For}i %a %r %s %b (%D ms)'
+      buffered: true

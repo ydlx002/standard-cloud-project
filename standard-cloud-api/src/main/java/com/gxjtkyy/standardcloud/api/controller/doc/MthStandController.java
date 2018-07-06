@@ -1,6 +1,7 @@
 package com.gxjtkyy.standardcloud.api.controller.doc;
 
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthPageReq;
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthWithRowReq;
 import com.gxjtkyy.standardcloud.common.annotation.ApiAction;
 import com.gxjtkyy.standardcloud.common.domain.vo.DocRequestVO;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
@@ -48,10 +49,10 @@ public class MthStandController {
 
 
     @ApiOperation(value="获取检测方法详情", notes="获取检测方法详情")
-    @ApiImplicitParam(name = "request", value = "请求体", required = true,dataType = "QueryDeteMthReq", paramType = "body")
+    @ApiImplicitParam(name = "request", value = "请求体", required = true,dataType = "QueryDeteMthWithRowReq", paramType = "body")
     @ApiAction("获取检测方法详情")
     @PostMapping("/getDeteMth")
-    public ResponseVO getDeteMth(@RequestBody QueryDeteMthReq request) throws BaseException{
+    public ResponseVO getDeteMth(@RequestBody QueryDeteMthWithRowReq request) throws BaseException{
         return mthStandService.getDetailDeteMth(request);
     }
 

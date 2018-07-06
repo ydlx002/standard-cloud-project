@@ -32,4 +32,7 @@ public class TemplateConstant {
     /**模板状态  0 无效*/
     public static final Integer TEMPLATE_STATUS_INVALID = 0;
 
+    /**模板状态  0 无效*/
+    public static final String TEMPLATE_TABLE_KEY_ROWID = "rowId";
+
 }

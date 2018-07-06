@@ -240,6 +240,7 @@ public abstract class ExcelParser<T> {
                         if (StringUtils.isEmpty(POIUtil.getCellValue(sheet.getRow(i).getCell(0)))) {
                             break;
                         }
+                        rowMap.put(TemplateConstant.TEMPLATE_TABLE_KEY_ROWID, i);
                         for (int j = 0, sizej = sheet.getRow(i).getPhysicalNumberOfCells(); j < sizej; j++) {
                             String key = POIUtil.getCellValue(headRow.getCell(j));
                             String value = POIUtil.getCellValue(sheet.getRow(i).getCell(j));

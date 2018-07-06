@@ -184,40 +184,4 @@ public class StandDocServiceImpl implements StandDocService {
         return forMap;
     }
 
-    @Override
-    public ResponseVO getDetailDeteMth(QueryDeteMthReq request) throws BaseException {
-        if (null == request.getDocId()) {
-            throw new DocException(RESULT_CODE_1010, RESULT_DESC_1010);
-        }
-        if (null == request.getDocType()) {
-            request.setDocType(docService.getDocType(request.getDocId()));
-        }
-
-        List<AggregationOperation> commonOperations = new ArrayList<>(9);
-        commonOperations.add(Aggregation.match(Criteria.where("_id").is(request.getDocId())));
-        commonOperations.add(project("content.deteMth").andExclude("_id"));
-        commonOperations.add(unwind("deteMth"));
-        //查询条件
-        if (!StringUtils.isEmpty(request.getDeteItem())) {
-            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteItem").is(request.getDeteItem().trim())));
-        }
-        if (!StringUtils.isEmpty(request.getDeteMth())) {
-            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteMth").is(request.getDeteMth())));
-        }
-        if (!StringUtils.isEmpty(request.getDeteBasis())) {
-            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteBasis").is(request.getDeteBasis())));
-        }
-        DocTemplate docTemplate = DocTemplate.getTemplateByType(request.getDocType());
-        List<Map> mapList = mongoTemplate.aggregate(Aggregation.newAggregation(commonOperations), docTemplate.getTableName(), Map.class).getMappedResults();
-        int size = mapList.size();
-        ResponseVO response = new ResponseVO();
-        if (size > 0) {
-            if (size > 1) {
-                log.warn("查询检测方法详情出现多条数据({})  -->{}",size, request);
-            }
-            response.setData(mapList.get(0).get("deteMth"));
-        }
-        return response;
-    }
-
 }

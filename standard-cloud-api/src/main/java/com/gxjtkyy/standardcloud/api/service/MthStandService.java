@@ -1,6 +1,8 @@
 package com.gxjtkyy.standardcloud.api.service;
 
 
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthReq;
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthWithRowReq;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthPageReq;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryReferDocReq;
@@ -31,5 +33,13 @@ public interface MthStandService extends StandDocService{
      * @throws BaseException
      */
     ResponseVO getReferDoc(QueryReferDocReq request) throws BaseException;
+
+
+    /**
+     * 获取检测方法详情
+     * @return
+     * @throws BaseException
+     */
+    ResponseVO getDetailDeteMth(QueryDeteMthWithRowReq request) throws BaseException;
 
 }

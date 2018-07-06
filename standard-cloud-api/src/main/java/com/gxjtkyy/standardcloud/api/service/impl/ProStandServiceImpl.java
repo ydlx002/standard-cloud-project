@@ -2,6 +2,7 @@ package com.gxjtkyy.standardcloud.api.service.impl;
 
 
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryCategoryReq;
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthReq;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryParamPageReq;
 import com.gxjtkyy.standardcloud.common.domain.Page;
 import com.gxjtkyy.standardcloud.api.domain.vo.CategoryVO;
@@ -42,6 +43,9 @@ public class ProStandServiceImpl extends StandDocServiceImpl implements ProStand
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private DocService docService;
 
 
     @Override
@@ -125,6 +129,38 @@ public class ProStandServiceImpl extends StandDocServiceImpl implements ProStand
         }
         ResponseVO response = new ResponseVO();
         response.setData(category);
+        return response;
+    }
+
+    @Override
+    public ResponseVO getDetailDeteMth(QueryDeteMthReq request) throws BaseException {
+        if (null == request.getDocId()) {
+            throw new DocException(RESULT_CODE_1010, RESULT_DESC_1010);
+        }
+        List<AggregationOperation> commonOperations = new ArrayList<>(9);
+        commonOperations.add(Aggregation.match(Criteria.where("_id").is(request.getDocId())));
+        commonOperations.add(project("content.deteMth").andExclude("_id"));
+        commonOperations.add(unwind("deteMth"));
+        //查询条件
+        if (!StringUtils.isEmpty(request.getDeteItem())) {
+            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteItem").is(request.getDeteItem().trim())));
+        }
+        if (!StringUtils.isEmpty(request.getDeteMth())) {
+            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteMth").is(request.getDeteMth())));
+        }
+        if (!StringUtils.isEmpty(request.getDeteBasis())) {
+            commonOperations.add(Aggregation.match(Criteria.where("deteMth.deteBasis").is(request.getDeteBasis())));
+        }
+
+        List<Map> mapList = mongoTemplate.aggregate(Aggregation.newAggregation(commonOperations), DocTemplate.PRO_STAND.getTableName(), Map.class).getMappedResults();
+        int size = mapList.size();
+        ResponseVO response = new ResponseVO();
+        if (size > 0) {
+            if (size > 1) {
+                log.warn("查询检测方法详情出现多条数据({})  -->{}",size, request);
+            }
+            response.setData(mapList.get(0).get("deteMth"));
+        }
         return response;
     }
 

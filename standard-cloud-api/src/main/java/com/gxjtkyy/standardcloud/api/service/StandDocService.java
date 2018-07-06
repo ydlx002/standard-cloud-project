@@ -85,11 +85,4 @@ public interface StandDocService {
      List<Object> getContentDoc(String docId, Integer docType, String node, String key, String value) throws BaseException;
 
 
-    /**
-     * 获取检测方法列表
-     * @return
-     * @throws BaseException
-     */
-     ResponseVO getDetailDeteMth(QueryDeteMthReq request) throws BaseException;
-
 }

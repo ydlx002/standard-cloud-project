@@ -2,6 +2,7 @@ package com.gxjtkyy.standardcloud.api.service;
 
 
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryCategoryReq;
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthReq;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryParamPageReq;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
 import com.gxjtkyy.standardcloud.common.exception.BaseException;
@@ -32,5 +33,11 @@ public interface ProStandService extends StandDocService{
     ResponseVO getCategory(QueryCategoryReq request) throws BaseException;
 
 
+    /**
+     * 获取检测方法详情
+     * @return
+     * @throws BaseException
+     */
+    ResponseVO getDetailDeteMth(QueryDeteMthReq request) throws BaseException;
 
 }

@@ -3,6 +3,7 @@ package com.gxjtkyy.standardcloud.api.service;
 import com.alibaba.fastjson.JSON;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthPageReq;
 import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthReq;
+import com.gxjtkyy.standardcloud.api.domain.vo.request.QueryDeteMthWithRowReq;
 import com.gxjtkyy.standardcloud.common.domain.vo.ResponseVO;
 
 import org.junit.Test;
@@ -36,9 +37,8 @@ public class MthStandServiceTest {
 
     @Test
     public void getDetailDeteMth() throws Exception {
-        QueryDeteMthReq request = new QueryDeteMthReq();
+        QueryDeteMthWithRowReq request = new QueryDeteMthWithRowReq();
         request.setDocId("4f808a5b700d48fb9896d07f5bbaf8ba");
-        request.setDeteMth("食品中铜（第一法：石墨炉原子吸收光谱法）");
         ResponseVO response = mthStandService.getDetailDeteMth(request);
         System.out.println(JSON.toJSONString(response));
     }

@@ -1,8 +1,7 @@
 package com.gxjtkyy.standardcloud.api.domain.vo.request;
 
 import com.gxjtkyy.standardcloud.common.domain.vo.DocRequestVO;
-import com.gxjtkyy.standardcloud.common.domain.vo.RequestVO;
-import lombok.Data;
+import com.gxjtkyy.standardcloud.common.validation.annotation.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,16 +15,11 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString(callSuper = true)
-public class QueryDeteMthReq extends DocRequestVO {
+public class QueryDeteMthWithRowReq extends DocRequestVO {
 
-    /**检测方法名*/
-    private String deteMth;
-
-    /**检测项*/
-    private String deteItem;
-
-    /**检测依据*/
-    private String deteBasis;
+    /**文档类型*/
+    @NotNull
+    private Integer rowId;
 
 
 }

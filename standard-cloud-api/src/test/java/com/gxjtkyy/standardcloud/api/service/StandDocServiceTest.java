@@ -31,7 +31,6 @@ public class StandDocServiceTest {
         request.setDocId("698302c2450a4009a892679780ea31b0");
         request.setDeteBasis("GBT 13662-2008");
         request.setDeteItem("总糖（以葡萄糖计）");
-        request.setDocType(0);
         request.setDeteMth("廉爱农法");
         ResponseVO response = proStandService.getDetailDeteMth(request);
         System.out.println(JSON.toJSONString(response));

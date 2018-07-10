@@ -1,7 +1,7 @@
 echo off
 
 set APP_NAME=standard-cloud-api-1.0.0.jar
-set CONFIG=-Xbootclasspath/a:./config
+set CONFIG=-Xbootclasspath/a:../config
 
 set DEBUG_OPTS=
 if ""%1"" == ""debug"" (
